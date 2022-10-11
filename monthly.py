@@ -34,16 +34,7 @@ class Query(str):
         query_list.append(self)
         return self
 
-   
-    def run_store(self, cursor):
-        time_init= time.time()
-        cursor.execute(self)
-        df = pd.DataFrame.from_records(
-            iter(cursor), columns=[x[0] for x in cursor.description])
-        print('execution time (minutes) =', round((time.time()-time_init)/60, 1))
-        return df
-
-   
+     
     def run_store_append(self, cursor, query_list):
         cursor.execute(self)
         df = pd.DataFrame.from_records(
@@ -51,17 +42,26 @@ class Query(str):
         query_list.append(self)
         return df
 
+    def run_store(self, cursor):
+        time_init= time.time()
+        cursor.execute(self)
+        df = pd.DataFrame.from_records(
+            iter(cursor), columns=[x[0] for x in cursor.description])
+        print('execution time (minutes) =', round((time.time()-time_init)/60, 1))
+        return df   
 
-
-def query_to_df(query, cursor):
-    return Query(query).run_store(cursor=cursor)
-
-
+    
 def inspect(df, cols):
     if len(cols) == 1 or type(cols) == str:
         return df[cols].value_counts()
     elif len(cols)>1:
         return df[cols].head()
+
+def query_to_df(query, cursor):
+    return Query(query).run_store(cursor=cursor)
+
+
+
 
 cursor = cur = con.cursor()
 
